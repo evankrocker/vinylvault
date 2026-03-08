@@ -7,52 +7,51 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 <style>
-  .artwork-wrap {
-    position: relative; aspect-ratio: 1;
-    overflow: hidden; background: #e9ecef;
-  }
+  .artwork-wrap { position:relative; aspect-ratio:1; overflow:hidden; background:#e9ecef; }
   .artwork-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
-  .artwork-placeholder {
-    width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center; background:#dee2e6;
-  }
+  .artwork-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#dee2e6; }
   .artwork-placeholder i { font-size:3rem; color:#adb5bd; }
-  .card { transition: box-shadow 0.15s, transform 0.15s; }
+  .card { transition:box-shadow 0.15s, transform 0.15s; }
   .record-card { cursor:pointer; }
-  .record-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15) !important; transform:translateY(-2px); }
-  .card-actions {
-    position:absolute; top:0.4rem; right:0.4rem;
-    display:flex; gap:0.25rem; opacity:0; transition:opacity 0.15s;
-  }
+  .record-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15)!important; transform:translateY(-2px); }
+  .card-actions { position:absolute; top:0.4rem; right:0.4rem; display:flex; gap:0.25rem; opacity:0; transition:opacity 0.15s; }
   .record-card:hover .card-actions { opacity:1; }
-  .grid-view {
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(180px,1fr));
-    gap:1rem;
-  }
+  .grid-view { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
+  .browse-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
   .list-thumb { width:52px; height:52px; object-fit:cover; border-radius:4px; flex-shrink:0; }
-  .list-thumb-placeholder {
-    width:52px; height:52px; border-radius:4px;
-    background:#dee2e6; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
+  .list-thumb-placeholder { width:52px; height:52px; border-radius:4px; background:#dee2e6; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .artwork-preview { width:100%; aspect-ratio:1; object-fit:cover; border-radius:4px; border:1px solid #dee2e6; display:none; margin-top:0.5rem; }
   .artwork-preview.show { display:block; }
   .empty-icon { font-size:5rem; color:#adb5bd; }
   #sync-status { font-size:0.75rem; }
-
-  /* Discogs search results */
   #discogs-results { max-height:260px; overflow-y:auto; }
-  .discogs-result {
-    display:flex; align-items:center; gap:0.75rem;
-    padding:0.5rem 0.75rem; cursor:pointer; border-bottom:1px solid #f0f0f0;
-    transition:background 0.1s;
-  }
+  .discogs-result { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.75rem; cursor:pointer; border-bottom:1px solid #f0f0f0; transition:background 0.1s; }
   .discogs-result:last-child { border-bottom:none; }
   .discogs-result:hover { background:#f8f9fa; }
   .discogs-result img { width:48px; height:48px; object-fit:cover; border-radius:3px; flex-shrink:0; background:#dee2e6; }
   .discogs-result .meta { flex:1; min-width:0; }
   .discogs-result .meta strong { display:block; font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .discogs-result .meta span { font-size:0.75rem; color:#6c757d; }
+  /* Browse cards */
+  .browse-card { cursor:pointer; }
+  .browse-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15)!important; transform:translateY(-2px); }
+  .browse-mosaic { display:grid; grid-template-columns:1fr 1fr; gap:2px; aspect-ratio:1; overflow:hidden; border-radius:4px 4px 0 0; background:#dee2e6; }
+  .browse-mosaic img { width:100%; height:100%; object-fit:cover; display:block; }
+  .browse-mosaic .blank { background:#dee2e6; display:flex; align-items:center; justify-content:center; }
+  .browse-mosaic .blank i { color:#adb5bd; font-size:1.5rem; }
+  /* Page sections */
+  .page { display:none; }
+  .page.active { display:block; }
+  /* Navbar tabs */
+  .nav-tabs .nav-link { cursor:pointer; }
+  .clickable-artist { cursor:pointer; color:#0d6efd; text-decoration:none; }
+  .clickable-artist:hover { text-decoration:underline; }
+  .clickable-badge { cursor:pointer; }
+  .clickable-badge:hover { opacity:0.85; }
+  /* Navbar icon links */
+  .navbar-nav .nav-link { border-bottom:3px solid transparent; transition:border-color 0.15s, opacity 0.15s; opacity:0.75; border-radius:0; }
+  .navbar-nav .nav-link:hover { opacity:1; border-bottom-color:rgba(255,255,255,0.4); }
+  .navbar-nav .nav-link.active { opacity:1; border-bottom-color:#fff; }
 </style>
 </head>
 <body class="bg-light">
@@ -60,62 +59,160 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-primary shadow-sm">
   <div class="container-fluid">
-    <span class="navbar-brand fw-bold fs-4"><i class="bi bi-vinyl me-2"></i>Vinyl Vault</span>
-    <span class="navbar-text text-white-50 me-auto small d-none d-md-inline">My Record Collection</span>
-    <span id="sync-status" class="me-3 text-white-50"><i class="bi bi-cloud me-1"></i>Connecting...</span>
-    <span class="badge bg-light text-primary me-3 fs-6" id="record-count-badge">0 Records</span>
-    <button class="btn btn-light btn-sm fw-semibold" onclick="openModal()">
-      <i class="bi bi-plus-lg me-1"></i>Add Record
+
+    <!-- Logo -->
+    <span class="navbar-brand d-flex align-items-center gap-2" style="cursor:pointer" onclick="goHome()">
+      <!-- SVG vinyl record logo -->
+      <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer record -->
+        <circle cx="19" cy="19" r="18" fill="#1a1a2e" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+        <!-- Groove rings -->
+        <circle cx="19" cy="19" r="15.5" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <circle cx="19" cy="19" r="13"   stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <circle cx="19" cy="19" r="10.5" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <circle cx="19" cy="19" r="8"    stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- Label area -->
+        <circle cx="19" cy="19" r="6.5" fill="#0d6efd"/>
+        <!-- Label shine -->
+        <circle cx="19" cy="19" r="6.5" fill="url(#labelGrad)"/>
+        <!-- Center hole -->
+        <circle cx="19" cy="19" r="1.8" fill="#1a1a2e"/>
+        <!-- Highlight arc -->
+        <path d="M 9 14 A 11 11 0 0 1 29 14" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <defs>
+          <radialGradient id="labelGrad" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.15)"/>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="d-flex flex-column lh-1">
+        <span class="fw-bold" style="font-size:1.1rem;letter-spacing:0.02em">Vinyl Vault</span>
+        <span style="font-size:0.6rem;opacity:0.65;letter-spacing:0.12em;text-transform:uppercase">Record Collection</span>
+      </div>
+    </span>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
     </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto ms-3">
+        <li class="nav-item">
+          <a class="nav-link d-flex flex-column align-items-center px-3 py-1" id="nav-collection" onclick="showPage('collection')" style="cursor:pointer;min-width:64px">
+            <i class="bi bi-collection-fill" style="font-size:1.25rem"></i>
+            <span style="font-size:0.65rem;letter-spacing:0.05em;margin-top:1px">Collection</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex flex-column align-items-center px-3 py-1" id="nav-artists" onclick="showPage('artists')" style="cursor:pointer;min-width:64px">
+            <i class="bi bi-person-fill" style="font-size:1.25rem"></i>
+            <span style="font-size:0.65rem;letter-spacing:0.05em;margin-top:1px">Artists</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex flex-column align-items-center px-3 py-1" id="nav-genres" onclick="showPage('genres')" style="cursor:pointer;min-width:64px">
+            <i class="bi bi-tags-fill" style="font-size:1.25rem"></i>
+            <span style="font-size:0.65rem;letter-spacing:0.05em;margin-top:1px">Genres</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex flex-column align-items-center px-3 py-1" id="nav-years" onclick="showPage('years')" style="cursor:pointer;min-width:64px">
+            <i class="bi bi-calendar-fill" style="font-size:1.25rem"></i>
+            <span style="font-size:0.65rem;letter-spacing:0.05em;margin-top:1px">Years</span>
+          </a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+        <span id="sync-status" class="me-1 text-white-50 small"><i class="bi bi-cloud me-1"></i>Connecting...</span>
+        <span class="badge bg-light text-primary" id="record-count-badge">0 Records</span>
+        <button class="btn btn-light btn-sm fw-semibold ms-1" onclick="openModal()">
+          <i class="bi bi-plus-lg me-1"></i>Add Record
+        </button>
+      </div>
+    </div>
   </div>
 </nav>
 
-<!-- Controls -->
-<div class="bg-white border-bottom py-2 px-3">
-  <div class="container-fluid">
-    <div class="row g-2 align-items-center">
-      <div class="col-12 col-md-4">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" id="search" class="form-control" placeholder="Search artist, title, genre..." oninput="render()">
+<!-- ═══════════════ COLLECTION PAGE ═══════════════ -->
+<div id="page-collection" class="page active">
+  <div class="bg-white border-bottom py-2 px-3">
+    <div class="container-fluid">
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="search" class="form-control" placeholder="Search artist, title, genre..." oninput="renderCollection()">
+          </div>
         </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <select id="filter-genre" class="form-select form-select-sm" onchange="render()">
-          <option value="">All Genres</option>
-        </select>
-      </div>
-      <div class="col-6 col-md-3">
-        <select id="sort-by" class="form-select form-select-sm" onchange="render()">
-          <option value="added">Recently Added</option>
-          <option value="artist">Artist A–Z</option>
-          <option value="title">Title A–Z</option>
-          <option value="year-asc">Year (Oldest)</option>
-          <option value="year-desc">Year (Newest)</option>
-        </select>
-      </div>
-      <div class="col-12 col-md-2 d-flex justify-content-md-end">
-        <div class="btn-group btn-group-sm" role="group">
-          <button id="btn-grid" type="button" class="btn btn-primary" onclick="setView('grid')" title="Grid view">
-            <i class="bi bi-grid-3x3-gap-fill"></i>
-          </button>
-          <button id="btn-list" type="button" class="btn btn-outline-primary" onclick="setView('list')" title="List view">
-            <i class="bi bi-list-ul"></i>
-          </button>
+        <div class="col-6 col-md-3">
+          <select id="filter-genre" class="form-select form-select-sm" onchange="renderCollection()">
+            <option value="">All Genres</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-3">
+          <select id="sort-by" class="form-select form-select-sm" onchange="renderCollection()">
+            <option value="added">Recently Added</option>
+            <option value="artist">Artist A–Z</option>
+            <option value="title">Title A–Z</option>
+            <option value="year-asc">Year (Oldest)</option>
+            <option value="year-desc">Year (Newest)</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex justify-content-md-end">
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="btn-grid" type="button" class="btn btn-primary" onclick="setView('grid')" title="Grid view"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+            <button id="btn-list" type="button" class="btn btn-outline-primary" onclick="setView('list')" title="List view"><i class="bi bi-list-ul"></i></button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Collection -->
-<div class="container-fluid py-4" id="collection">
-  <div class="text-center py-5 text-muted">
-    <div class="spinner-border spinner-border-sm me-2"></div>Loading your collection...
+  <div class="container-fluid py-4" id="collection-content">
+    <div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</div>
   </div>
 </div>
 
-<!-- Add/Edit Modal -->
+<!-- ═══════════════ ARTISTS PAGE ═══════════════ -->
+<div id="page-artists" class="page">
+  <div class="bg-white border-bottom py-2 px-3">
+    <div class="container-fluid">
+      <div class="input-group input-group-sm" style="max-width:360px">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" id="artist-search" class="form-control" placeholder="Search artists..." oninput="renderArtists()">
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid py-4" id="artists-content"></div>
+</div>
+
+<!-- ═══════════════ GENRES PAGE ═══════════════ -->
+<div id="page-genres" class="page">
+  <div class="container-fluid py-4" id="genres-content"></div>
+</div>
+
+<!-- ═══════════════ YEARS PAGE ═══════════════ -->
+<div id="page-years" class="page">
+  <div class="container-fluid py-4" id="years-content"></div>
+</div>
+
+<!-- ═══════════════ DETAIL PAGE (Artist/Genre/Year) ═══════════════ -->
+<div id="page-detail" class="page">
+  <div class="bg-white border-bottom py-2 px-3">
+    <div class="container-fluid d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" id="detail-back-btn" onclick="goBack()">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </button>
+      <div>
+        <span class="text-muted small" id="detail-breadcrumb"></span>
+        <h5 class="mb-0" id="detail-title"></h5>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid py-4" id="detail-content"></div>
+</div>
+
+<!-- ═══════════════ ADD/EDIT MODAL ═══════════════ -->
 <div class="modal fade" id="recordModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -125,7 +222,6 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="edit-id">
-
         <!-- Discogs Search -->
         <div class="card mb-3 border-primary">
           <div class="card-header bg-primary text-white py-2">
@@ -135,18 +231,13 @@
           <div class="card-body pb-0">
             <div class="input-group mb-2">
               <input type="text" id="discogs-search" class="form-control" placeholder="e.g. Miles Davis Kind of Blue" onkeydown="if(event.key==='Enter')searchDiscogs()">
-              <button class="btn btn-primary" onclick="searchDiscogs()" id="discogs-btn">
-                <i class="bi bi-search me-1"></i>Search
-              </button>
+              <button class="btn btn-primary" onclick="searchDiscogs()" id="discogs-btn"><i class="bi bi-search me-1"></i>Search</button>
             </div>
           </div>
-          <div id="discogs-results-wrap" style="display:none">
-            <div id="discogs-results" class="border-top"></div>
-          </div>
+          <div id="discogs-results-wrap" style="display:none"><div id="discogs-results" class="border-top"></div></div>
           <div id="discogs-msg" class="card-body pt-0 pb-2 small text-muted" style="display:none"></div>
         </div>
-
-        <!-- Manual fields -->
+        <!-- Fields -->
         <div class="row">
           <div class="col-md-8">
             <div class="mb-3">
@@ -183,22 +274,17 @@
             </div>
           </div>
           <div class="col-md-4 d-flex flex-column align-items-center justify-content-start pt-4">
-            <img id="artwork-preview" class="artwork-preview show w-100" src="" alt="Artwork preview" style="display:none!important">
+            <img id="artwork-preview" class="w-100 rounded border" src="" alt="Artwork preview" style="display:none;aspect-ratio:1;object-fit:cover;">
             <div id="artwork-placeholder-box" class="artwork-placeholder rounded w-100" style="aspect-ratio:1">
               <i class="bi bi-vinyl" style="font-size:3rem;color:#adb5bd"></i>
             </div>
           </div>
         </div>
-
       </div>
       <div class="modal-footer">
-        <button class="btn btn-danger me-auto" id="btn-delete" style="display:none" onclick="deleteRecord()">
-          <i class="bi bi-trash me-1"></i>Delete
-        </button>
+        <button class="btn btn-danger me-auto" id="btn-delete" style="display:none" onclick="deleteRecord()"><i class="bi bi-trash me-1"></i>Delete</button>
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveRecord()">
-          <i class="bi bi-save me-1"></i>Save Record
-        </button>
+        <button type="button" class="btn btn-primary" onclick="saveRecord()"><i class="bi bi-save me-1"></i>Save Record</button>
       </div>
     </div>
   </div>
@@ -234,19 +320,14 @@
   const db = getFirestore(app);
   const colRef = collection(db, "records");
 
-  // Expose db helpers to global scope
-  window._db = db;
-  window._colRef = colRef;
-  window._setDoc = setDoc;
-  window._deleteDoc = deleteDoc;
-  window._doc = doc;
+  window._db = db; window._colRef = colRef;
+  window._setDoc = setDoc; window._deleteDoc = deleteDoc; window._doc = doc;
 
-  // Real-time listener — updates all devices instantly
   onSnapshot(colRef, (snapshot) => {
     window.collection = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     document.getElementById('sync-status').innerHTML = '<i class="bi bi-cloud-check me-1"></i>Synced';
     document.getElementById('sync-status').className = 'me-3 text-success-emphasis small';
-    render();
+    refreshCurrentPage();
   }, (err) => {
     console.error(err);
     document.getElementById('sync-status').innerHTML = '<i class="bi bi-cloud-slash me-1"></i>Offline';
@@ -258,50 +339,83 @@
   const DISCOGS_TOKEN = 'CTiNenmYdJnIcjFgIEqcyMiPghfZVjxsGsWHWvYH';
   window.collection = [];
   let currentView = 'grid';
+  let currentPage = 'collection';
+  let detailType = null;   // 'artist' | 'genre' | 'year'
+  let detailValue = null;
+  let prevPage = 'collection';
   let editingId = null;
   let bsModal = null;
   let bsToast = null;
 
-  // ── Render ──────────────────────────────────────────────
-  function render() {
+  // ── Page routing ─────────────────────────────────────────
+  function showPage(page) {
+    if (page !== 'detail') prevPage = currentPage;
+    currentPage = page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    // Update nav active state
+    ['collection','artists','genres','years'].forEach(p => {
+      const el = document.getElementById('nav-' + p);
+      if (el) el.classList.toggle('active', p === page);
+    });
+    refreshCurrentPage();
+  }
+
+  function goHome() { showPage('collection'); }
+
+  function goBack() {
+    showPage(prevPage);
+  }
+
+  function refreshCurrentPage() {
+    const count = window.collection.length;
+    document.getElementById('record-count-badge').textContent = count + ' Record' + (count !== 1 ? 's' : '');
+    if (currentPage === 'collection') renderCollection();
+    else if (currentPage === 'artists') renderArtists();
+    else if (currentPage === 'genres') renderGenres();
+    else if (currentPage === 'years') renderYears();
+    else if (currentPage === 'detail') renderDetail();
+  }
+
+  function openDetail(type, value) {
+    prevPage = currentPage;
+    detailType = type;
+    detailValue = value;
+    showPage('detail');
+  }
+
+  // ── Collection page ──────────────────────────────────────
+  function renderCollection() {
     const q = (document.getElementById('search').value || '').toLowerCase();
     const genreFilter = document.getElementById('filter-genre').value;
     const sortBy = document.getElementById('sort-by').value;
 
     let filtered = window.collection.filter(r => {
       const match = !q || r.artist.toLowerCase().includes(q) ||
-        r.title.toLowerCase().includes(q) ||
-        (r.genre || '').toLowerCase().includes(q);
+        r.title.toLowerCase().includes(q) || (r.genre||'').toLowerCase().includes(q);
       return match && (!genreFilter || r.genre === genreFilter);
     });
 
-    filtered.sort((a, b) => {
-      if (sortBy === 'artist') return a.artist.localeCompare(b.artist);
-      if (sortBy === 'title') return a.title.localeCompare(b.title);
-      if (sortBy === 'year-asc') return (a.year||9999) - (b.year||9999);
-      if (sortBy === 'year-desc') return (b.year||0) - (a.year||0);
-      return (b.addedAt||0) - (a.addedAt||0);
+    filtered.sort((a,b) => {
+      if (sortBy==='artist') return a.artist.localeCompare(b.artist);
+      if (sortBy==='title') return a.title.localeCompare(b.title);
+      if (sortBy==='year-asc') return (a.year||9999)-(b.year||9999);
+      if (sortBy==='year-desc') return (b.year||0)-(a.year||0);
+      return (b.addedAt||0)-(a.addedAt||0);
     });
 
     updateGenreFilter();
-    const count = window.collection.length;
-    document.getElementById('record-count-badge').textContent = count + ' Record' + (count !== 1 ? 's' : '');
-
-    const el = document.getElementById('collection');
+    const el = document.getElementById('collection-content');
 
     if (window.collection.length === 0) {
-      el.innerHTML = `
-        <div class="text-center py-5">
-          <i class="bi bi-vinyl empty-icon d-block mb-3"></i>
-          <h4 class="text-muted">Your vault is empty</h4>
-          <p class="text-muted mb-4">Search Discogs or add a record manually.</p>
-          <button class="btn btn-primary" onclick="openModal()">
-            <i class="bi bi-plus-lg me-1"></i>Add Your First Record
-          </button>
-        </div>`;
+      el.innerHTML = `<div class="text-center py-5">
+        <i class="bi bi-vinyl empty-icon d-block mb-3"></i>
+        <h4 class="text-muted">Your vault is empty</h4>
+        <p class="text-muted mb-4">Search Discogs or add a record manually.</p>
+        <button class="btn btn-primary" onclick="openModal()"><i class="bi bi-plus-lg me-1"></i>Add Your First Record</button>
+      </div>`;
       return;
     }
-
     if (filtered.length === 0) {
       el.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-search fs-3 d-block mb-2"></i>No records match your search.</div>`;
       return;
@@ -310,27 +424,201 @@
     if (currentView === 'grid') {
       el.innerHTML = `<div class="grid-view">${filtered.map(gridCard).join('')}</div>`;
     } else {
-      el.innerHTML = `
-        <div class="card shadow-sm">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th style="width:60px"></th>
-                  <th>Artist</th>
-                  <th>Album Title</th>
-                  <th>Genre</th>
-                  <th>Year</th>
-                  <th style="width:90px"></th>
-                </tr>
-              </thead>
-              <tbody>${filtered.map(tableRow).join('')}</tbody>
-            </table>
-          </div>
-        </div>`;
+      el.innerHTML = `<div class="card shadow-sm"><div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr>
+            <th style="width:60px"></th><th>Artist</th><th>Album Title</th><th>Genre</th><th>Year</th><th style="width:90px"></th>
+          </tr></thead>
+          <tbody>${filtered.map(tableRow).join('')}</tbody>
+        </table></div></div>`;
     }
   }
 
+  function updateGenreFilter() {
+    const genres = [...new Set(window.collection.map(r=>r.genre).filter(Boolean))].sort();
+    const sel = document.getElementById('filter-genre');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All Genres</option>' +
+      genres.map(g=>`<option value="${esc(g)}" ${g===cur?'selected':''}>${esc(g)}</option>`).join('');
+  }
+
+  // ── Artists page ─────────────────────────────────────────
+  function renderArtists() {
+    const q = (document.getElementById('artist-search').value || '').toLowerCase();
+    const artistMap = {};
+    window.collection.forEach(r => {
+      const a = r.artist || 'Unknown';
+      if (!artistMap[a]) artistMap[a] = [];
+      artistMap[a].push(r);
+    });
+
+    let artists = Object.keys(artistMap).sort((a,b) => a.localeCompare(b));
+    if (q) artists = artists.filter(a => a.toLowerCase().includes(q));
+
+    const el = document.getElementById('artists-content');
+    if (artists.length === 0) {
+      el.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-person fs-3 d-block mb-2"></i>No artists found.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <p class="text-muted small mb-3">${artists.length} artist${artists.length!==1?'s':''}</p>
+      <div class="browse-grid">
+        ${artists.map(a => {
+          const records = artistMap[a];
+          const imgs = records.filter(r=>r.artwork).slice(0,4).map(r=>r.artwork);
+          return `
+            <div class="card shadow-sm browse-card" onclick="openDetail('artist','${esc(a)}')">
+              ${mosaicHtml(imgs)}
+              <div class="card-body py-2 px-3">
+                <div class="fw-bold text-truncate">${esc(a)}</div>
+                <div class="text-muted small">${records.length} album${records.length!==1?'s':''}</div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // ── Genres page ──────────────────────────────────────────
+  function renderGenres() {
+    const genreMap = {};
+    window.collection.forEach(r => {
+      const g = r.genre || 'Uncategorized';
+      if (!genreMap[g]) genreMap[g] = [];
+      genreMap[g].push(r);
+    });
+
+    const genres = Object.keys(genreMap).sort((a,b) => a.localeCompare(b));
+    const el = document.getElementById('genres-content');
+
+    if (genres.length === 0) {
+      el.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-tags fs-3 d-block mb-2"></i>No genres yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <p class="text-muted small mb-3">${genres.length} genre${genres.length!==1?'s':''}</p>
+      <div class="browse-grid">
+        ${genres.map(g => {
+          const records = genreMap[g];
+          const imgs = records.filter(r=>r.artwork).slice(0,4).map(r=>r.artwork);
+          return `
+            <div class="card shadow-sm browse-card" onclick="openDetail('genre','${esc(g)}')">
+              ${mosaicHtml(imgs)}
+              <div class="card-body py-2 px-3">
+                <div class="fw-bold text-truncate">${esc(g)}</div>
+                <div class="text-muted small">${records.length} album${records.length!==1?'s':''}</div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // ── Years page ───────────────────────────────────────────
+  function renderYears() {
+    const yearMap = {};
+    window.collection.forEach(r => {
+      const y = r.year ? String(r.year) : 'Unknown';
+      if (!yearMap[y]) yearMap[y] = [];
+      yearMap[y].push(r);
+    });
+
+    const years = Object.keys(yearMap).sort((a,b) => {
+      if (a==='Unknown') return 1; if (b==='Unknown') return -1;
+      return parseInt(b) - parseInt(a);
+    });
+    const el = document.getElementById('years-content');
+
+    if (years.length === 0) {
+      el.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-calendar fs-3 d-block mb-2"></i>No years yet.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <p class="text-muted small mb-3">${years.length} year${years.length!==1?'s':''}</p>
+      <div class="browse-grid">
+        ${years.map(y => {
+          const records = yearMap[y];
+          const imgs = records.filter(r=>r.artwork).slice(0,4).map(r=>r.artwork);
+          return `
+            <div class="card shadow-sm browse-card" onclick="openDetail('year','${esc(y)}')">
+              ${mosaicHtml(imgs)}
+              <div class="card-body py-2 px-3">
+                <div class="fw-bold">${esc(y)}</div>
+                <div class="text-muted small">${records.length} album${records.length!==1?'s':''}</div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // ── Detail page ──────────────────────────────────────────
+  function renderDetail() {
+    let records = window.collection;
+    let breadcrumb = '';
+    let title = '';
+
+    if (detailType === 'artist') {
+      records = window.collection.filter(r => r.artist === detailValue);
+      breadcrumb = 'Artists';
+      title = detailValue;
+      document.getElementById('detail-back-btn').innerHTML = '<i class="bi bi-arrow-left me-1"></i>All Artists';
+    } else if (detailType === 'genre') {
+      records = window.collection.filter(r => (r.genre||'Uncategorized') === detailValue);
+      breadcrumb = 'Genres';
+      title = detailValue;
+      document.getElementById('detail-back-btn').innerHTML = '<i class="bi bi-arrow-left me-1"></i>All Genres';
+    } else if (detailType === 'year') {
+      records = window.collection.filter(r => (r.year ? String(r.year) : 'Unknown') === detailValue);
+      breadcrumb = 'Years';
+      title = detailValue === 'Unknown' ? 'Unknown Year' : detailValue;
+      document.getElementById('detail-back-btn').innerHTML = '<i class="bi bi-arrow-left me-1"></i>All Years';
+    }
+
+    records = records.slice().sort((a,b) => a.title.localeCompare(b.title));
+
+    document.getElementById('detail-breadcrumb').textContent = breadcrumb + ' /';
+    document.getElementById('detail-title').textContent = title + ' — ' + records.length + ' album' + (records.length!==1?'s':'');
+
+    const el = document.getElementById('detail-content');
+    if (records.length === 0) {
+      el.innerHTML = `<div class="text-center py-5 text-muted">No records found.</div>`;
+      return;
+    }
+
+    el.innerHTML = `<div class="grid-view">${records.map(r => gridCardDetail(r)).join('')}</div>`;
+  }
+
+  // Grid card for detail page — clicking opens edit modal
+  function gridCardDetail(r) {
+    const artHtml = r.artwork
+      ? `<img src="${esc(r.artwork)}" alt="${esc(r.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    // In detail, show the "other" dimension as a clickable badge
+    let extraBadges = '';
+    if (detailType !== 'artist') extraBadges += `<span class="badge bg-primary clickable-badge me-1" onclick="event.stopPropagation();openDetail('artist','${esc(r.artist)}')">${esc(r.artist)}</span>`;
+    if (detailType !== 'genre' && r.genre) extraBadges += `<span class="badge bg-secondary clickable-badge me-1" onclick="event.stopPropagation();openDetail('genre','${esc(r.genre)}')">${esc(r.genre)}</span>`;
+    if (detailType !== 'year' && r.year) extraBadges += `<span class="badge bg-success clickable-badge" onclick="event.stopPropagation();openDetail('year','${r.year}')">${r.year}</span>`;
+
+    return `
+      <div class="card shadow-sm record-card position-relative h-100" onclick="openModal('${r.id}')">
+        <div class="artwork-wrap">
+          ${artHtml}
+          <div class="artwork-placeholder" style="${r.artwork?'display:none':''}"><i class="bi bi-vinyl"></i></div>
+        </div>
+        <div class="card-body p-2">
+          ${detailType !== 'artist' ? `<div class="text-primary small fw-semibold text-truncate">${esc(r.artist)}</div>` : ''}
+          <div class="fw-bold text-truncate" style="font-size:.9rem">${esc(r.title)}</div>
+          <div class="d-flex flex-wrap gap-1 mt-1">${extraBadges}</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-sm btn-light border" onclick="event.stopPropagation();openModal('${r.id}')" title="Edit"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();confirmDelete('${r.id}')" title="Delete"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>`;
+  }
+
+  // ── Grid / Table cards ───────────────────────────────────
   function gridCard(r) {
     const artHtml = r.artwork
       ? `<img src="${esc(r.artwork)}" alt="${esc(r.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -339,16 +627,15 @@
       <div class="card shadow-sm record-card position-relative h-100" onclick="openModal('${r.id}')">
         <div class="artwork-wrap">
           ${artHtml}
-          <div class="artwork-placeholder" style="${r.artwork?'display:none':''}">
-            <i class="bi bi-vinyl"></i>
-          </div>
+          <div class="artwork-placeholder" style="${r.artwork?'display:none':''}"><i class="bi bi-vinyl"></i></div>
         </div>
         <div class="card-body p-2">
-          <div class="text-primary small fw-semibold text-truncate">${esc(r.artist)}</div>
+          <div class="text-primary small fw-semibold text-truncate clickable-artist"
+            onclick="event.stopPropagation();openDetail('artist','${esc(r.artist)}')">${esc(r.artist)}</div>
           <div class="fw-bold text-truncate" style="font-size:.9rem">${esc(r.title)}</div>
           <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
-            ${r.genre ? `<span class="badge bg-secondary">${esc(r.genre)}</span>` : ''}
-            ${r.year ? `<span class="text-muted ms-auto" style="font-size:.75rem">${r.year}</span>` : ''}
+            ${r.genre ? `<span class="badge bg-secondary clickable-badge" onclick="event.stopPropagation();openDetail('genre','${esc(r.genre)}')">${esc(r.genre)}</span>` : ''}
+            ${r.year ? `<span class="text-muted ms-auto clickable-badge" style="font-size:.75rem" onclick="event.stopPropagation();openDetail('year','${r.year}')">${r.year}</span>` : ''}
           </div>
         </div>
         <div class="card-actions">
@@ -365,10 +652,10 @@
     return `
       <tr style="cursor:pointer" onclick="openModal('${r.id}')">
         <td>${thumb}</td>
-        <td class="text-primary fw-semibold">${esc(r.artist)}</td>
+        <td><span class="text-primary fw-semibold clickable-artist" onclick="event.stopPropagation();openDetail('artist','${esc(r.artist)}')">${esc(r.artist)}</span></td>
         <td class="fw-bold">${esc(r.title)}</td>
-        <td>${r.genre ? `<span class="badge bg-secondary">${esc(r.genre)}</span>` : '<span class="text-muted">—</span>'}</td>
-        <td class="text-muted">${r.year||'—'}</td>
+        <td>${r.genre ? `<span class="badge bg-secondary clickable-badge" onclick="event.stopPropagation();openDetail('genre','${esc(r.genre)}')">${esc(r.genre)}</span>` : '<span class="text-muted">—</span>'}</td>
+        <td>${r.year ? `<span class="clickable-artist" onclick="event.stopPropagation();openDetail('year','${r.year}')">${r.year}</span>` : '<span class="text-muted">—</span>'}</td>
         <td onclick="event.stopPropagation()">
           <div class="d-flex gap-1">
             <button class="btn btn-sm btn-outline-primary" onclick="openModal('${r.id}')"><i class="bi bi-pencil"></i></button>
@@ -378,54 +665,46 @@
       </tr>`;
   }
 
-  function updateGenreFilter() {
-    const genres = [...new Set(window.collection.map(r => r.genre).filter(Boolean))].sort();
-    const sel = document.getElementById('filter-genre');
-    const current = sel.value;
-    sel.innerHTML = '<option value="">All Genres</option>' +
-      genres.map(g => `<option value="${esc(g)}" ${g===current?'selected':''}>${esc(g)}</option>`).join('');
+  // ── Mosaic helper ────────────────────────────────────────
+  function mosaicHtml(imgs) {
+    const slots = [0,1,2,3].map(i => imgs[i]
+      ? `<img src="${esc(imgs[i])}" onerror="this.style.display='none'" alt="">`
+      : `<div class="blank"><i class="bi bi-vinyl"></i></div>`
+    );
+    return `<div class="browse-mosaic">${slots.join('')}</div>`;
   }
 
-  // ── Discogs Search ───────────────────────────────────────
+  // ── Discogs ──────────────────────────────────────────────
   async function searchDiscogs() {
     const query = document.getElementById('discogs-search').value.trim();
     if (!query) return;
-
     const btn = document.getElementById('discogs-btn');
     const resultsWrap = document.getElementById('discogs-results-wrap');
     const resultsEl = document.getElementById('discogs-results');
     const msgEl = document.getElementById('discogs-msg');
-
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
     btn.disabled = true;
     resultsWrap.style.display = 'none';
     msgEl.style.display = 'none';
-
     try {
-      const url = `https://api.discogs.com/database/search?q=${encodeURIComponent(query)}&type=release&per_page=8&token=${DISCOGS_TOKEN}`;
-      const res = await fetch(url, { headers: { 'User-Agent': 'VinylVault/1.0' } });
+      const res = await fetch(`https://api.discogs.com/database/search?q=${encodeURIComponent(query)}&type=release&per_page=8&token=${DISCOGS_TOKEN}`, { headers:{'User-Agent':'VinylVault/1.0'} });
       const data = await res.json();
-
       if (!data.results || data.results.length === 0) {
         msgEl.textContent = 'No results found. Try a different search.';
         msgEl.style.display = 'block';
       } else {
         resultsEl.innerHTML = data.results.map(r => {
-          const artist = r.title.includes(' - ') ? r.title.split(' - ')[0] : (r.artist || '');
+          const artist = r.title.includes(' - ') ? r.title.split(' - ')[0] : (r.artist||'');
           const albumTitle = r.title.includes(' - ') ? r.title.split(' - ').slice(1).join(' - ') : r.title;
           const thumb = r.cover_image || r.thumb || '';
           const year = r.year || '';
-          const genre = (r.genre && r.genre[0]) || (r.style && r.style[0]) || '';
+          const genre = (r.genre&&r.genre[0]) || (r.style&&r.style[0]) || '';
           const label = r.label ? r.label[0] : '';
-          return `
-            <div class="discogs-result" onclick="fillFromDiscogs(${r.id}, '${esc(artist)}', '${esc(albumTitle)}', '${year}', '${esc(genre)}', '${esc(thumb)}')">
-              <img src="${esc(thumb)}" onerror="this.src=''" alt="">
-              <div class="meta">
-                <strong>${esc(albumTitle)}</strong>
-                <span>${esc(artist)}${year ? ' · '+year : ''}${label ? ' · '+label : ''}</span>
-              </div>
-              <i class="bi bi-arrow-down-circle text-primary ms-auto"></i>
-            </div>`;
+          return `<div class="discogs-result" onclick="fillFromDiscogs(${r.id},'${esc(artist)}','${esc(albumTitle)}','${year}','${esc(genre)}','${esc(thumb)}')">
+            <img src="${esc(thumb)}" onerror="this.src=''" alt="">
+            <div class="meta"><strong>${esc(albumTitle)}</strong><span>${esc(artist)}${year?' · '+year:''}${label?' · '+label:''}</span></div>
+            <i class="bi bi-arrow-down-circle text-primary ms-auto"></i>
+          </div>`;
         }).join('');
         resultsWrap.style.display = 'block';
       }
@@ -433,63 +712,38 @@
       msgEl.textContent = 'Error connecting to Discogs. Check your connection and try again.';
       msgEl.style.display = 'block';
     }
-
     btn.innerHTML = '<i class="bi bi-search me-1"></i>Search';
     btn.disabled = false;
   }
 
   async function fillFromDiscogs(releaseId, artist, title, year, genre, thumbUrl) {
-    // Hide results
     document.getElementById('discogs-results-wrap').style.display = 'none';
-
-    // Fill basic fields immediately
     document.getElementById('f-artist').value = artist;
     document.getElementById('f-title').value = title;
     document.getElementById('f-year').value = year;
     document.getElementById('f-genre').value = genre;
-
-    // Fetch full release for high-res artwork
     try {
-      const res = await fetch(`https://api.discogs.com/releases/${releaseId}?token=${DISCOGS_TOKEN}`, {
-        headers: { 'User-Agent': 'VinylVault/1.0' }
-      });
+      const res = await fetch(`https://api.discogs.com/releases/${releaseId}?token=${DISCOGS_TOKEN}`, { headers:{'User-Agent':'VinylVault/1.0'} });
       const data = await res.json();
-
-      // Get best available image
       let artUrl = thumbUrl;
-      if (data.images && data.images.length > 0) {
-        artUrl = data.images[0].uri || data.images[0].uri150 || thumbUrl;
-      }
-
-      // Fill genre/style more accurately
-      if (data.genres && data.genres.length > 0) {
-        document.getElementById('f-genre').value = data.genres[0];
-      } else if (data.styles && data.styles.length > 0) {
-        document.getElementById('f-genre').value = data.styles[0];
-      }
-
-      // Fill year more accurately
+      if (data.images && data.images.length > 0) artUrl = data.images[0].uri || data.images[0].uri150 || thumbUrl;
+      if (data.genres && data.genres.length > 0) document.getElementById('f-genre').value = data.genres[0];
+      else if (data.styles && data.styles.length > 0) document.getElementById('f-genre').value = data.styles[0];
       if (data.year) document.getElementById('f-year').value = data.year;
-
       document.getElementById('f-artwork').value = artUrl;
       previewArtwork(artUrl);
-
     } catch(e) {
-      // Fall back to thumbnail if full fetch fails
       document.getElementById('f-artwork').value = thumbUrl;
       previewArtwork(thumbUrl);
     }
-
-    // Clear search box
     document.getElementById('discogs-search').value = '';
     document.getElementById('discogs-msg').style.display = 'none';
   }
 
-  // ── Modal ───────────────────────────────────────────────
+  // ── Modal ────────────────────────────────────────────────
   function openModal(id) {
     editingId = id || null;
     const r = id ? window.collection.find(x => x.id === id) : null;
-
     document.getElementById('modal-title').textContent = r ? 'Edit Record' : 'Add Record';
     document.getElementById('btn-delete').style.display = r ? 'inline-block' : 'none';
     document.getElementById('edit-id').value = id || '';
@@ -502,89 +756,67 @@
     document.getElementById('discogs-results-wrap').style.display = 'none';
     document.getElementById('discogs-msg').style.display = 'none';
     previewArtwork(r ? r.artwork : '');
-
     if (!bsModal) bsModal = new bootstrap.Modal(document.getElementById('recordModal'));
     bsModal.show();
     setTimeout(() => document.getElementById('discogs-search').focus(), 300);
   }
 
-  function closeModal() {
-    if (bsModal) bsModal.hide();
-    editingId = null;
-  }
+  function closeModal() { if (bsModal) bsModal.hide(); editingId = null; }
 
   function previewArtwork(url) {
     const img = document.getElementById('artwork-preview');
-    const placeholder = document.getElementById('artwork-placeholder-box');
+    const ph = document.getElementById('artwork-placeholder-box');
     if (url && (url.startsWith('http') || url.startsWith('//'))) {
-      img.src = url;
-      img.style.display = 'block';
-      placeholder.style.display = 'none';
-      img.onerror = () => { img.style.display='none'; placeholder.style.display='flex'; };
-    } else {
-      img.style.display = 'none';
-      placeholder.style.display = 'flex';
-    }
+      img.src = url; img.style.display = 'block'; ph.style.display = 'none';
+      img.onerror = () => { img.style.display='none'; ph.style.display='flex'; };
+    } else { img.style.display='none'; ph.style.display='flex'; }
   }
 
-  // ── Save / Delete ───────────────────────────────────────
+  // ── Save / Delete ────────────────────────────────────────
   async function saveRecord() {
     const artist = document.getElementById('f-artist').value.trim();
     const title = document.getElementById('f-title').value.trim();
     if (!artist || !title) { alert('Artist and Album Title are required.'); return; }
-
     const record = {
       artist, title,
       year: parseInt(document.getElementById('f-year').value) || null,
       genre: document.getElementById('f-genre').value.trim(),
       artwork: document.getElementById('f-artwork').value.trim(),
-      addedAt: editingId
-        ? (window.collection.find(x => x.id === editingId)?.addedAt || Date.now())
-        : Date.now()
+      addedAt: editingId ? (window.collection.find(x=>x.id===editingId)?.addedAt || Date.now()) : Date.now()
     };
-
     const id = editingId || (Date.now().toString(36) + Math.random().toString(36).slice(2));
-
     try {
       await window._setDoc(window._doc(window._colRef, id), record);
       showToast(editingId ? 'Record updated!' : 'Record added!');
       closeModal();
-    } catch(e) {
-      alert('Error saving to Firebase: ' + e.message);
-    }
+    } catch(e) { alert('Error saving: ' + e.message); }
   }
 
-  function confirmDelete(id) {
-    editingId = id;
-    deleteRecord();
-  }
+  function confirmDelete(id) { editingId = id; deleteRecord(); }
 
   async function deleteRecord() {
     const id = editingId || document.getElementById('edit-id').value;
-    if (!id) return;
-    if (!confirm('Remove this record from your vault?')) return;
+    if (!id || !confirm('Remove this record from your vault?')) return;
     try {
       await window._deleteDoc(window._doc(window._colRef, id));
       showToast('Record deleted.', 'danger');
       closeModal();
-    } catch(e) {
-      alert('Error deleting: ' + e.message);
-    }
+    } catch(e) { alert('Error deleting: ' + e.message); }
   }
 
-  // ── Helpers ─────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────
   function setView(v) {
     currentView = v;
     document.getElementById('btn-grid').className = v==='grid' ? 'btn btn-primary' : 'btn btn-outline-primary';
     document.getElementById('btn-list').className = v==='list' ? 'btn btn-primary' : 'btn btn-outline-primary';
-    render();
+    renderCollection();
   }
 
   function showToast(msg, type='success') {
     const el = document.getElementById('toast');
     el.className = `toast align-items-center text-bg-${type} border-0`;
     document.getElementById('toast-msg').textContent = msg;
-    if (!bsToast) bsToast = new bootstrap.Toast(el, { delay: 2500 });
+    if (!bsToast) bsToast = new bootstrap.Toast(el, { delay:2500 });
     bsToast.show();
   }
 
@@ -596,17 +828,13 @@
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') saveRecord();
   });
 
-  // Expose functions globally
-  window.render = render;
-  window.openModal = openModal;
-  window.closeModal = closeModal;
-  window.saveRecord = saveRecord;
-  window.deleteRecord = deleteRecord;
-  window.confirmDelete = confirmDelete;
-  window.setView = setView;
-  window.searchDiscogs = searchDiscogs;
-  window.fillFromDiscogs = fillFromDiscogs;
-  window.previewArtwork = previewArtwork;
+  // Expose globals
+  window.showPage = showPage; window.goHome = goHome; window.goBack = goBack;
+  window.openDetail = openDetail; window.openModal = openModal; window.closeModal = closeModal;
+  window.saveRecord = saveRecord; window.deleteRecord = deleteRecord; window.confirmDelete = confirmDelete;
+  window.setView = setView; window.renderCollection = renderCollection;
+  window.renderArtists = renderArtists; window.renderGenres = renderGenres; window.renderYears = renderYears;
+  window.searchDiscogs = searchDiscogs; window.fillFromDiscogs = fillFromDiscogs; window.previewArtwork = previewArtwork;
 </script>
 </body>
 </html>
